@@ -12,6 +12,7 @@ export class AuthenticationController {
     return this.authService.signUp(signUpDto);
   }
 
+  @HttpCode(HttpStatus.OK) // by default @Post does 201, we wanted 200 - hence using @HttpCode(HttpStatus.OK)
   @Post('sign-in')
   signIn(@Body() signInDto: SignInDto) {
     return this.authService.signIn(signInDto);
