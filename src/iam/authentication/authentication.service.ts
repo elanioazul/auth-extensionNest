@@ -13,7 +13,7 @@ export class AuthenticationService {
     private hashingService: HashingService,
   ) {}
 
-  async singup(signUpDto: SignUpDto) {
+  async signUp(signUpDto: SignUpDto) {
     try {
       const user = new User();
       user.email = signUpDto.email;
