@@ -1,6 +1,4 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
-import { Res } from '@nestjs/common/decorators';
-import { Response } from 'express';
 import { AuthenticationService } from './authentication.service';
 import { SignInDto } from './dto/sign-in.dto';
 import { SignUpDto } from './dto/sign-up.dto';
@@ -14,18 +12,18 @@ export class AuthenticationController {
     return this.authService.signUp(signUpDto);
   }
 
-  @HttpCode(HttpStatus.OK) // by default @Post does 201, we wanted 200 - hence using @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.OK)
   @Post('sign-in')
-  async signIn(
+  signIn(
     @Body() signInDto: SignInDto,
-    @Res({ passthrough: true }) response: Response,
+    //@Res({ passthrough: true }) response: Response,
   ) {
-    //return this.authService.signIn(signInDto);
-    const accessToken = await this.authService.signIn(signInDto);
-    response.cookie('accessToken', accessToken, {
-      secure: true,
-      httpOnly: true,
-      sameSite: true,
-    });
+    return this.authService.signIn(signInDto);
+    // const accessToken = await this.authService.signIn(signInDto);
+    // response.cookie('accessToken', accessToken, {
+    //   secure: true,
+    //   httpOnly: true,
+    //   sameSite: true,
+    // });
   }
 }
