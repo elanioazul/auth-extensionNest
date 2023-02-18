@@ -1,8 +1,16 @@
-import { CanActivate, ExecutionContext, Inject, Injectable } from "@nestjs/common";
+import {
+	CanActivate,
+	ExecutionContext,
+	Inject,
+	Injectable,
+	UnauthorizedException
+} from "@nestjs/common";
 import { Observable } from "rxjs";
 import { JwtService } from "@nestjs/jwt/dist";
 import jwtConfig from "src/iam/config/jwt.config";
 import { ConfigType } from "@nestjs/config";
+import { Request } from "express";
+import { REQUEST_USER_KEY } from "src/iam/iam.constants";
 @Injectable()
 export class AccessTokenGuard implements CanActivate {
 	constructor(
@@ -10,9 +18,29 @@ export class AccessTokenGuard implements CanActivate {
 		@Inject(jwtConfig.KEY)
 		private readonly jwtConfiguration: ConfigType<typeof jwtConfig>
 	) {}
-	canActivate(
+	async canActivate(
 		context: ExecutionContext
-	): boolean | Promise<boolean> | Observable<boolean> {
+	): Promise<boolean> {
+		const request = context.switchToHttp().getRequest();
+		const token = this.extractTokenFromHeader(request);
+		if (!token) {
+			throw new UnauthorizedException();
+		}
+		try {
+			const payload = await this.jwtService.verifyAsync(
+				token,
+				this.jwtConfiguration
+			);
+			request[REQUEST_USER_KEY] = payload;
+			console.log(payload);
+		} catch {
+			throw new UnauthorizedException();
+		}
 		return true;
+	}
+
+	private extractTokenFromHeader(request: Request): string | undefined {
+		const [_, token] = request.headers.authorization?.split(" ") ?? [];
+		return token;
 	}
 }
