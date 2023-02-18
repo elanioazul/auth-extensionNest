@@ -26,7 +26,7 @@ export class AuthenticationGuard implements CanActivate {
 		private readonly accessTokenGuard: AccessTokenGuard
 	) {}
 
-	async canActivate(context: ExecutionContext): Promise<boolean | any> {
+	async canActivate(context: ExecutionContext): Promise<boolean> {
 		const authTypes = this.reflector.getAllAndOverride<AuthType[]>(
 			AUTH_TYPE_KEY,
 			[context.getHandler(), context.getClass()]
@@ -45,6 +45,6 @@ export class AuthenticationGuard implements CanActivate {
 				return true;
 			}
 		}
-		return error;
+		throw error;
 	}
 }
