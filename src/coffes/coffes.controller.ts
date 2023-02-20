@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
 import { CoffesService } from './coffes.service';
 import { CreateCoffeDto } from './dto/create-coffe.dto';
 import { UpdateCoffeDto } from './dto/update-coffe.dto';
@@ -13,7 +13,9 @@ export class CoffesController {
   }
 
   @Get()
-  findAll() {
+  findAll(@Req() request) {
+    console.log(request.USER);
+    
     return this.coffesService.findAll();
   }
 
