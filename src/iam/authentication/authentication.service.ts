@@ -12,6 +12,7 @@ import { Repository } from "typeorm";
 import jwtConfig from "../config/jwt.config";
 import { HashingService } from "../hashing/hashing.service";
 import { IActiveUser } from "../interfaces/active-user.interface";
+import { RefreshTokenDto } from "./dto/refresh-token.dto";
 import { SignInDto } from "./dto/sign-in.dto";
 import { SignUpDto } from "./dto/sign-up.dto";
 
@@ -55,6 +56,10 @@ export class AuthenticationService {
 		if (!isEqual) {
 			throw new UnauthorizedException("Password does not match");
 		}
+		return await this.generateTokens(user);
+	}
+
+	async generateTokens(user: User) {
 		const [accessToken, refreshToken] = await Promise.all([
 			this.signToken<Partial<IActiveUser>>(
 				user.id,
@@ -67,6 +72,24 @@ export class AuthenticationService {
 			accessToken,
 			refreshToken
 		};
+	}
+
+	async refreshTokens(refreshTokenDto: RefreshTokenDto) {
+		try {
+			const { sub } = await this.jwtService.verifyAsync<
+				Pick<IActiveUser, "sub">
+			>(refreshTokenDto.refreshToken, {
+				secret: this.jwtConfiguration.secret,
+				audience: this.jwtConfiguration.audience,
+				issuer: this.jwtConfiguration.issuer
+			});
+			const user = await this.usersRepository.findOneByOrFail({
+				id: sub
+			});
+			return this.generateTokens(user);
+		} catch (error) {
+			throw new UnauthorizedException();
+		}
 	}
 
 	private async signToken<T>(userId: number, expiresIn: number, payload?: T) {
