@@ -34,7 +34,7 @@ export class RefreshTokenIdsStorage
 
 	async validate(userId: number, tokenId: string): Promise<boolean> {
 		const storedId = await this.tokensRepository.findOneBy({
-			userId: userId.toString();
+			userId: userId.toString()
 		});
 		if (storedId.tokenId !== tokenId) {
 			throw new InvalidatedRefreshTokenError();
