@@ -1,5 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
+import { Permissions } from 'src/iam/authorization/decortators/permissions.decorator';
 import { Roles } from 'src/iam/authorization/decortators/role.decorator';
+import { Permission } from 'src/iam/authorization/permission.type';
 import { ActiveUser } from 'src/iam/decorators/active-user.decorator';
 import { IActiveUser } from 'src/iam/interfaces/active-user.interface';
 import { Role } from 'src/users/enums/role.enum';
@@ -10,7 +12,8 @@ import { UpdateCoffeDto } from './dto/update-coffe.dto';
 @Controller('coffes')
 export class CoffesController {
   constructor(private readonly coffesService: CoffesService) {}
-	@Roles(Role.Admin)
+	//@Roles(Role.Admin)
+	@Permissions(Permission.CreateCoffee)
   @Post()
   create(@Body() createCoffeDto: CreateCoffeDto) {
     return this.coffesService.create(createCoffeDto);
